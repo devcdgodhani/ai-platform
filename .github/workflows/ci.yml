@@ -1,10 +1,13 @@
 name: CI/CD
 
+# on:
+#   push:
+#     branches: [main, develop]
+#   pull_request:
+#     branches: [main]
+
 on:
-  push:
-    branches: [main, develop]
-  pull_request:
-    branches: [main]
+    workflow_dispatch: # 👈 manual trigger from GitHub Actions UI
 
 env:
   REGISTRY: ghcr.io
