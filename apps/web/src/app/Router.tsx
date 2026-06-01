@@ -1,6 +1,8 @@
 import { lazy, Suspense } from 'react';
 import { useAuthStore } from '@/features/auth/store/auth.store';
 
+import { Spinner } from '@ai-platform/ui';
+
 const LoginPage = lazy(() => import('@/features/auth/pages/LoginPage'));
 const DashboardLayout = lazy(() => import('@/features/dashboard/components/DashboardLayout'));
 
@@ -17,7 +19,7 @@ export function Router() {
 function FullPageSpinner() {
   return (
     <div className="h-full flex items-center justify-center">
-      <div className="w-8 h-8 border-2 border-brand-500 border-t-transparent rounded-full animate-spin" />
+      <Spinner size="lg" className="border-brand-500 border-t-transparent" />
     </div>
   );
 }

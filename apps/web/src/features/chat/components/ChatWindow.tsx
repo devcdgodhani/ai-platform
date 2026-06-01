@@ -6,6 +6,7 @@ import { useConversation } from '../hooks/useConversations';
 import { MessageMarkdown } from './MessageMarkdown';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { clsx } from 'clsx';
+import { Spinner, MessageBubble, StreamingDots } from '@ai-platform/ui';
 
 interface LocalMessage {
   id: string;
@@ -101,37 +102,33 @@ export function ChatWindow({ conversationId }: { conversationId?: string | null 
           </div>
         )}
 
-        {allMessages.map((msg, idx) => (
-          <div
-            key={msg.id}
-            className={clsx('flex', msg.role === 'user' ? 'justify-end' : 'justify-start')}
-          >
-            <div
-              className={clsx(
-                'max-w-[85%] md:max-w-[75%] rounded-2xl px-5 py-4 text-sm leading-relaxed animate-slide-up',
-                msg.role === 'user'
-                  ? 'bg-brand-600/80 text-white rounded-tr-sm'
-                  : 'glass text-white/90 rounded-tl-sm',
+        {allMessages.map((msg, idx) => {
+          const isLastAndStreaming = msg.role === 'assistant' && idx === allMessages.length - 1 && isStreaming;
+          
+          return (
+            <MessageBubble 
+              key={msg.id}
+              role={msg.role} 
+              isStreaming={isLastAndStreaming}
+              bubbleClassName={clsx(
+                'animate-slide-up',
+                msg.role === 'user' ? 'bg-brand-600/80 text-white' : 'glass text-white/90'
               )}
             >
-              {msg.role === 'assistant' && idx === allMessages.length - 1 && isStreaming ? (
-                streamBuffer ? (
-                  <ErrorBoundary fallback={<div className="text-red-400">Failed to render message format.</div>}>
-                    <MessageMarkdown content={streamBuffer} />
-                  </ErrorBoundary>
-                ) : (
-                  <StreamingDots />
-                )
+              {isLastAndStreaming && streamBuffer ? (
+                <ErrorBoundary fallback={<div className="text-red-400">Failed to render message format.</div>}>
+                  <MessageMarkdown content={streamBuffer} />
+                </ErrorBoundary>
               ) : msg.role === 'user' ? (
                 <div className="whitespace-pre-wrap">{msg.content}</div>
-              ) : (
+              ) : !isLastAndStreaming ? (
                 <ErrorBoundary fallback={<div className="text-red-400">Failed to render message format.</div>}>
                   <MessageMarkdown content={msg.content} />
                 </ErrorBoundary>
-              )}
-            </div>
-          </div>
-        ))}
+              ) : null}
+            </MessageBubble>
+          );
+        })}
         
         <div ref={bottomRef} />
       </div>
@@ -155,7 +152,7 @@ export function ChatWindow({ conversationId }: { conversationId?: string | null 
             className="btn-primary px-6 shrink-0"
           >
             {isStreaming ? (
-              <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin block" />
+              <Spinner size="sm" className="border-white/30 border-t-white block" />
             ) : (
               '↑'
             )}
@@ -166,16 +163,4 @@ export function ChatWindow({ conversationId }: { conversationId?: string | null 
   );
 }
 
-function StreamingDots() {
-  return (
-    <span className="flex gap-1 items-center h-4">
-      {[0, 1, 2].map((i) => (
-        <span
-          key={i}
-          className="w-1.5 h-1.5 rounded-full bg-brand-400 animate-pulse-slow"
-          style={{ animationDelay: `${i * 150}ms` }}
-        />
-      ))}
-    </span>
-  );
-}
+

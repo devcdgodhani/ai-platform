@@ -27,7 +27,7 @@ export class AuthService {
     return { id: user.id, email: user.email, name: user.name, role: user.role as never, createdAt: user.createdAt };
   }
 
-  async login(user: UserProfile): Promise<AuthTokens> {
+  async login(user: UserProfile): Promise<AuthTokens & { user: UserProfile }> {
     const payload: JWTPayload = { sub: user.id, email: user.email, role: user.role };
     const accessToken = this.jwtService.sign(payload);
     const tokenFamily = uuid();
@@ -44,10 +44,10 @@ export class AuthService {
     );
 
     logger.info({ userId: user.id }, 'User logged in');
-    return { accessToken, refreshToken, expiresIn: 900 };
+    return { accessToken, refreshToken, expiresIn: 900, user };
   }
 
-  async register(email: string, password: string, name: string): Promise<UserProfile> {
+  async register(email: string, password: string, name: string): Promise<AuthTokens & { user: UserProfile }> {
     const existing = await this.prisma.user.findUnique({ where: { email } });
     if (existing) throw new ConflictException('Email already registered');
 
@@ -57,7 +57,8 @@ export class AuthService {
     });
 
     logger.info({ userId: user.id }, 'User registered');
-    return { id: user.id, email: user.email, name: user.name, role: user.role as never, createdAt: user.createdAt };
+    const userProfile = { id: user.id, email: user.email, name: user.name, role: user.role as never, createdAt: user.createdAt };
+    return this.login(userProfile);
   }
 
   async logout(userId: string, tokenFamily: string): Promise<void> {

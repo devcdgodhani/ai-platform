@@ -9,11 +9,11 @@ export function useLogin() {
 
   return useMutation({
     mutationFn: async (credentials: { email: string; password: string }) => {
-      const { data } = await apiClient.post<{ data: AuthTokens & { user: UserProfile } }>(
+      const { data } = await apiClient.post<AuthTokens & { user: UserProfile }>(
         '/auth/login',
         credentials,
       );
-      return data.data;
+      return data;
     },
     onSuccess: (data) => {
       setAuth(data.user, { accessToken: data.accessToken, refreshToken: data.refreshToken, expiresIn: data.expiresIn });
@@ -28,11 +28,11 @@ export function useRegister() {
 
   return useMutation({
     mutationFn: async (credentials: { email: string; password: string; name: string }) => {
-      const { data } = await apiClient.post<{ data: AuthTokens & { user: UserProfile } }>(
+      const { data } = await apiClient.post<AuthTokens & { user: UserProfile }>(
         '/auth/register',
         credentials,
       );
-      return data.data;
+      return data;
     },
     onSuccess: (data) => {
       setAuth(data.user, { accessToken: data.accessToken, refreshToken: data.refreshToken, expiresIn: data.expiresIn });
