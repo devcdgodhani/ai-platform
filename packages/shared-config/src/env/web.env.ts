@@ -10,8 +10,11 @@ export type WebEnv = z.infer<typeof webEnvSchema>;
 
 export function getWebEnv(): WebEnv {
   const result = webEnvSchema.safeParse({
+    // @ts-ignore: Vite replaces this at build time, TS CJS complains
     VITE_API_URL: import.meta.env['VITE_API_URL'],
+    // @ts-ignore
     VITE_SOCKET_URL: import.meta.env['VITE_SOCKET_URL'],
+    // @ts-ignore
     VITE_APP_NAME: import.meta.env['VITE_APP_NAME'],
   });
   if (!result.success) {
